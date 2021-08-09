@@ -1,0 +1,31 @@
+{
+  "name": "syslog-interceptor",
+  "version": "1.0.0",
+  "description": "Intercepts syslog messages to report abuse to AbuseIPDB",
+  "main": "listener.ts",
+  "scripts": {
+    "test": "ts-node listener.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toddinpal/syslog-interceptor.git"
+  },
+  "keywords": [
+    "syslog",
+    "AbuseIPDB"
+  ],
+  "author": "Todd Little",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/toddinpal/syslog-interceptor/issues"
+  },
+  "homepage": "https://github.com/toddinpal/syslog-interceptor#readme",
+  "devDependencies": {},
+  "dependencies": {
+    "@types/node": "^16.4.13",
+    "cron": "^1.8.2",
+    "node-fetch": "^2.6.1",
+    "nsyslog-parser": "^0.9.6",
+    "ts-node": "^10.2.0"
+  }
+}
