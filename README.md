@@ -1,5 +1,7 @@
 # syslog-interceptor
-Intercepts syslog messages to report abuse to AbuseIPDB
+Intercepts syslog messages from a Synology NAS to report abuse to AbuseIPDB.  To use this tool, you will need an APIKey from AbuseIPDB.  It's designed to run in a Docker container, although anything that can run Node.js can run the program.  As such there is a Dockerfile to use in building an image.  
+
+This tool works by accepting syslog messages and inspecting them for an abuse report from DSM.  If it finds indication that a breakin was attempted it reports it to AbuseIPDB and then forwards the syslog message to a downstream syslog daemon if so configured.  So it basically sits between Log Center and any downstream syslog server if any.  Otherwise it becomes your syslog server.  Personally I'd suggest using Papertrail or some other syslog provider.
 
 To run the Docker container, some environment variables need to be set for the container and as well the container must use the host's network.  It might work if you use a bridged network and map UDP port as defined by the serverPort environment variable as both the host port and container port.  Two environment variables are required:
 1. serverPort - This is the UDP port the server will listen on
