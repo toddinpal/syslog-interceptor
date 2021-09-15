@@ -1,3 +1,9 @@
+/*
+Copyright 2021 Todd Little and the syslog-interceptor contributors.  All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 import dgram from 'dgram';
 import { reportAbuse } from './report';
 import parser from 'nsyslog-parser';

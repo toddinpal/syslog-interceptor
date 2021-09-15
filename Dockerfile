@@ -1,4 +1,8 @@
-# Copyright 2021 Todd Little and the syslog-interceptor contributors.
+#
+# Copyright 2021 Todd Little and the syslog-interceptor contributors.  All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 FROM node:14
 
 # Create app directory

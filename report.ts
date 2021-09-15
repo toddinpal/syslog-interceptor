@@ -1,3 +1,9 @@
+/*
+Copyright 2021 Todd Little and the syslog-interceptor contributors.  All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 //
 // This routine is used to send an abuse report to AbuseIPDB based upon their REST API.  You need to have an APIKey
 // from AbuseIPDB to use this function.
