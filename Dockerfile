@@ -1,3 +1,4 @@
+# Copyright 2021 Todd Little and the syslog-interceptor contributors.
 FROM node:14
 
 # Create app directory
@@ -16,6 +17,16 @@ RUN npm install
 COPY . .
 
 RUN npm install -g typescript ts-node
+
+# Required environment variables:
+#   serverPort - the port this container will listen on for incoming syslog messages
+#   APIKey - the API Key from AbuseIPDB
+# Optional environment variables:
+#    nextServerAddr - The address of a syslog server to relay messages to
+#    nextServerPort - The port of the above syslog server
+#
+# These can all be set at the time of creating the container
+ENV serverPort=20514 APIKey=""  nextServerAddr=""  nextServerPort=""
 
 EXPOSE 20514
 CMD [ "ts-node", "listener.ts" ]

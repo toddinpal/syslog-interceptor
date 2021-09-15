@@ -16,7 +16,7 @@ if (nextServerAddr == undefined || nextServerPort == undefined) {
     console.log("Not forwarding messages because either nextServerAddr and/or nextServerPort isn't set.");
     console.log('Please see https://github.com/toddinpal/syslog-interceptor for more details on how to use.');
 } else {
-    console.log('Passing syslog messages to: "$(nextServerAddress)":"$(nextServerPort)"')
+    console.log(`Passing syslog messages to: ${nextServerAddr}:${nextServerPort}`);
 }
 
 // The structure of a syslog message
