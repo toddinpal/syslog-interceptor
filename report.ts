@@ -31,5 +31,5 @@ export async function reportAbuse(ip: string, categories: string, comment: strin
         }
     })
     const body = <ReportResponse>await response.json();
-    console.log(body);
+    console.log(`Reported ${ip} confidence score: ${body.data.abuseConfidenceScore}`);
 }

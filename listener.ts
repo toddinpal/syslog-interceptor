@@ -16,13 +16,14 @@ if (!serverPort || !APIKey) {
     console.log('Please see https://github.com/toddinpal/syslog-interceptor for more details on how to use.');
     process.exit(1);
 }
-const nextServerAddr = process.env.nextServerAddr;
-const nextServerPort = process.env.nextServerPort;
-if (nextServerAddr == undefined || nextServerPort == undefined) {
+const nextServerAddr = (process.env.nextServerAddr) ? process.env.nextServerAddr : "";
+const nextServerPort = (process.env.nextServerPort) ? +process.env.nextServerPort : 0;
+const forwarding = (nextServerAddr != "" && nextServerPort != 0);
+if (forwarding) {
+    console.log(`Passing syslog messages to: ${nextServerAddr}:${nextServerPort}`);
+} else {
     console.log("Not forwarding messages because either nextServerAddr and/or nextServerPort isn't set.");
     console.log('Please see https://github.com/toddinpal/syslog-interceptor for more details on how to use.');
-} else {
-    console.log(`Passing syslog messages to: ${nextServerAddr}:${nextServerPort}`);
 }
 
 // The structure of a syslog message
@@ -66,11 +67,21 @@ interface SynologyStructuredData {
 const server = dgram.createSocket('udp4');
 const client = dgram.createSocket('udp4');
 
+// Connect the downstream socket
+try {
+    if (forwarding) client.connect(nextServerPort, nextServerAddr);
+} catch (error) {
+    console.log(`Error connecting to downstream syslog server: ${error}\nNot forwarding messages.`);
+}
+
 // Keep a list of the reported IPs for the day as we only want to report an IP address once a day per AbuseIPDB
 const reportedSet = new Set<string>();
 
 // Create a job to clear the list of reported IPs every midnight
-const job = new CronJob('00 00 00 * * *', reportedSet.clear());
+const job = new CronJob('00 00 00 * * *', function () {
+    console.log("Clearing the reported IP list");
+    reportedSet.clear();
+    });
 job.start();
 
 server.on('error', (err) => {
@@ -80,10 +91,10 @@ server.on('error', (err) => {
 
 //  For each syslog message we receive:
 server.on('message', (msg, rinfo) => {
-    console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log(`Message received: ${msg.toString('utf-8',0,msg.length-1)}`);
 
     // Forward the message to the intended syslog server, should probably check return status
-    if (nextServerAddr != undefined && nextServerPort != undefined) client.send(msg, +nextServerPort, nextServerAddr);
+    if (forwarding) client.send(msg, +nextServerPort, nextServerAddr);
 
     // Parse the syslog message
     const parsedMessage = <SysLogMessage<SynologyStructuredData>>parser(msg + "");
@@ -116,7 +127,7 @@ server.on('message', (msg, rinfo) => {
 
 server.on('listening', () => {
     const address = server.address();
-    console.log(`server listening ${address.address}:${address.port}`);
+    console.log(`Server listening ${address.address}:${address.port}`);
 });
 
 server.bind(+serverPort);
