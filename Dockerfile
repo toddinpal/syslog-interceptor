@@ -30,7 +30,15 @@ RUN npm install -g typescript ts-node
 #    nextServerPort - The port of the above syslog server
 #
 # These can all be set at the time of creating the container
-ENV serverPort=20514 APIKey=""  nextServerAddr=""  nextServerPort=""
+ENV serverPort=20514
+ENV APIKey=""  
+ENV nextServerAddr=""  
+ENV nextServerPort=""
+# Add as many as needed regexp expressions, with incremented number
+ENV CHECK_REGEXP_1="failed to log in via"
+ENV CHECK_REGEXP_2="due to authorization failure."
+ENV CHECK_REGEXP_3=""
+
 
 EXPOSE 20514
 CMD [ "ts-node", "listener.ts" ]
