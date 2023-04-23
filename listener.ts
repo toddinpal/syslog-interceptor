@@ -8,6 +8,9 @@ import dgram from 'dgram';
 import { reportAbuse } from './report';
 import parser from 'nsyslog-parser';
 const CronJob = require('cron').CronJob;
+const envRegExpPrefix = "CHECK_REGEXP_";
+
+const regExpList: RegExp[] = [];
 
 const serverPort = process.env.serverPort;
 const APIKey = process.env.APIKey;
@@ -25,7 +28,24 @@ if (forwarding) {
     console.log("Not forwarding messages because either nextServerAddr and/or nextServerPort isn't set.");
     console.log('Please see https://github.com/toddinpal/syslog-interceptor for more details on how to use.');
 }
+for (const envVariable in process.env) {
+    if (envVariable.startsWith(envRegExpPrefix)) {
+      const value = process.env[envVariable];
+      if (typeof value === 'string') {
+        const regex = new RegExp(value, "i");
+        regExpList.push(regex);
+      }
+    }
+}
 
+if (regExpList.length == 0) {
+    console.log(`Please provide at least one regexp value`);
+} else {
+    console.log(`Loaded RegExp expressions:`)
+    regExpList.forEach((regex, index) => {
+        console.log(`RegExp ${index + 1}: ${regex}`);
+      });
+}
 // The structure of a syslog message
 interface SysLogMessage<T> {
     originalMessage: string
@@ -104,8 +124,10 @@ server.on('message', (msg, rinfo) => {
     // the parsing logic below to generate the AbuseIPDB report might need to be updated as well.
     //
     // Check to verify it's a login failure
-    if (!parsedMessage.message.includes('failed to log in via')) return;
-    if (!parsedMessage.message.includes('due to authorization failure.')) return;
+    const isMatch = matchesAnyRegExp(parsedMessage.message, regExpList);
+    if (!isMatch) return;
+    // if (!parsedMessage.message.includes('failed to log in via')) return;
+    // if (!parsedMessage.message.includes('due to authorization failure.')) return;
 
     // Temporary fix for me as one of my DSMs is reporting the other one for login failures
     if (parsedMessage.structuredData[0].arg_1 == 'little') return;
@@ -131,3 +153,12 @@ server.on('listening', () => {
 });
 
 server.bind(+serverPort);
+
+function matchesAnyRegExp(str: string, regexArray: RegExp[]): boolean {
+    for (const regex of regexArray) {
+      if (regex.test(str)) {
+        return true;
+      }
+    }
+    return false;
+  }
